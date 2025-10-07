@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta charset="ISO-8859-1">
+<link rel="stylesheet" th:href="@{/css/bootstrap.css}">
+<title>Employees Management System</title>
+</head>
+
+<body>
+
+	<div class="container">
+
+		<h1 th:text="#{index.welcome}"></h1>
+		<a class="btn btn-primary mb-3" th:href="@{/showNewEmployeeForm}">Add Employee</a>
+		<table class="table table-hover">
+			<thead class="thead-dark">
+				<tr>
+					<th>Employee First Name</th>
+					<th>Employee Last Name</th>
+					<th>Employee Email</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody>
+				<th:block th:each="employee : ${listEmployees}">
+					<tr>
+						<td th:text="${employee.firstName}"></td>
+						<td th:text="${employee.lastName}"></td>
+						<td th:text="${employee.email}"></td>
+						<td>
+							<form th:action="@{/removeEmployee}" method="post">
+								<input type="hidden" name="employeeID" th:value="${employee.id}">
+								<a class="btn btn-primary mb-3" th:href="@{/showFormForUpdate/}+${employee.id}">Update</a>
+								<button type="submit" class="btn btn-danger mb-3">Remove</button>
+							</form>
+						</td>
+					</tr>
+				</th:block>
+			</tbody>
+		</table>
+
+	</div>
+
+
+</body>
+
+</html>
