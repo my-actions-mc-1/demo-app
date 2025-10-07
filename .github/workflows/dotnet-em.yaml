@@ -2,12 +2,12 @@ name: dotnet-em
 
 on:
   push:
-    branches:
-      - main    
-    paths:
-    - 'dotnet/EmployeeManage/**'
-    # tags:
-    #   - "dontnet-em-v*.*.*"
+    # branches:
+    #   - main    
+    # paths:
+    # - 'dotnet/EmployeeManage/**'
+    tags:
+      - "dontnet-em-v*.*.*"
 
 jobs:
   call-build:

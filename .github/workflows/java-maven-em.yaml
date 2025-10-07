@@ -2,12 +2,12 @@ name: java-maven-em
 
 on:
   push:
-    branches:
-      - main    
-    paths:
-    - 'java-maven/EmployeeManagement/**'
-    # tags:
-    #   - "java-maven-em-v*.*.*"
+    # branches:
+    #   - main    
+    # paths:
+    # - 'java-maven/EmployeeManagement/**'
+    tags:
+      - "java-maven-em-v*.*.*"
 
 jobs:
   call-build:
