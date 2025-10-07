@@ -1,4 +1,4 @@
-name: Pipline demo test - dotnet
+name: dotnet-em
 
 on:
   push:
