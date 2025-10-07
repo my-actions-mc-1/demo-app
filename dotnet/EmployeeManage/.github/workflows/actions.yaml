@@ -1,0 +1,16 @@
+name: Pipline demo test - dotnet
+
+on:
+  push:
+    branches:
+      - main    
+    paths:
+    - 'dotnet/EmployeeManage/**'
+    # tags:
+    #   - "dontnet-em-v*.*.*"
+
+jobs:
+  call-build:
+    uses: my-actions-mc-1/workflow-1/.github/workflows/pipeline-dotnet.yaml@main
+    with:
+      dotnet-version: '8.0.x'
