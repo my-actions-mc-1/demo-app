@@ -13,4 +13,5 @@ jobs:
   call-build:
     uses: my-actions-mc-1/workflow-1/.github/workflows/pipeline-java-maven.yaml@main
     with:
-      java-version: '17'
+      project-path: 'java-maven/EmployeeManagement'
+      java-version: '11'
