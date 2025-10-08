@@ -2,7 +2,7 @@ name: dotnet-em
 
 env:
   project-path: "dotnet/EmployeeManage"
-  PUBLISHED_ROOT: "./published"
+  PUBLISHED_ROOT: "published"
   dotnet-version: "8.0.x"
 
 on:
@@ -87,7 +87,7 @@ jobs:
       - name: dotnet publish
         run: |
           cd ${{ env.project-path }}  
-          dotnet publish -c Release -o '${{env.PUBLISHED_ROOT}}'
+          dotnet publish -c Release -o './${{env.PUBLISHED_ROOT}}'
 
       - name: (TEST) Upload a Build Artifact
         uses: actions/upload-artifact@v4.6.2
@@ -99,7 +99,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: ${{inputs.environment}}
+      name: ${{!inputs.environment && 'development' || inputs.environment}}
 
     steps:
       - name: (TEST) Download Build Artifact
