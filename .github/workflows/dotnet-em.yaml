@@ -14,6 +14,11 @@ on:
     tags:
       - "dontnet-em-v*.*.*"
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment type (options: development)'
+        type: string
+        default: 'development'
 
 jobs:
   # call-build:
@@ -90,23 +95,25 @@ jobs:
           name: donet-artifact
           path: "${{env.project-path}}/${{env.PUBLISHED_ROOT}}"
 
-  approval:
-    needs: build
-    runs-on: ubuntu-latest
+  # approval:
+  #   needs: build
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: (TEST) Request deployment approval
-        uses: trstringer/manual-approval@v1.11.0
-        with:
-          secret: ${{ github.TOKEN }}
-          approvers: marcuscwm-nus
-          minimum-approvals: 1
-          issue-title: "Deployment request for ${{github.ref_name}}"
-          issue-body: "Please approve or deny deployment."
+  #   steps:
+  #     - name: (TEST) Request deployment approval
+  #       uses: trstringer/manual-approval@v1.11.0
+  #       with:
+  #         secret: ${{ github.TOKEN }}
+  #         approvers: marcuscwm-nus
+  #         minimum-approvals: 1
+  #         issue-title: "Deployment request for ${{github.ref_name != '' && github.ref_name || 'TEST'}}"
+  #         issue-body: "Please approve or deny deployment."
 
   deploy:
-    needs: approval
+    needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: ${{inputs.environment}}
 
     steps:
       - name: (TEST) Download Build Artifact
