@@ -1,5 +1,9 @@
 name: java-maven-em
 
+env:
+  project-path: 'java-maven/EmployeeManagement'
+  java-version: '11'
+
 on:
   push:
     # branches:
@@ -8,10 +12,81 @@ on:
     # - 'java-maven/EmployeeManagement/**'
     tags:
       - "java-maven-em-v*.*.*"
+  workflow_dispatch:
 
 jobs:
-  call-build:
-    uses: my-actions-mc-1/workflow-1/.github/workflows/pipeline-java-maven.yaml@main
-    with:
-      project-path: 'java-maven/EmployeeManagement'
-      java-version: '11'
+  # call-build:
+  #   uses: my-actions-mc-1/workflow-1/.github/workflows/pipeline-java-maven.yaml@main
+  #   with:
+  #     project-path: 'java-maven/EmployeeManagement'
+  #     java-version: '11'
+
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: ${{ env.java-version }}
+
+      # - name: Run shared composite action
+      #   uses: my-actions-mc-1/workflow-1/.github/actions/sonatype-fortify-scan@main
+      #   with:
+      #     scan-targets: ${{ env.project-path }}/pom.xml
+
+      # - name: Sonatype Evaluate
+      #   id: evaluate
+      #   uses: sonatype/actions/evaluate@v1
+      #   with:
+      #     iq-server-url: ${{ secrets.SONATYPE_SERVER_URL }}
+      #     username: ${{ secrets.SONATYPE_USERNAME }}
+      #     password: ${{ secrets.SONATYPE_PASSWORD }}
+      #     application-id: ${{ secrets.SONATYPE_APP_ID }}
+      #     scan-targets: ${{ env.project-path }}/pom.xml
+
+      # - name: Log evaluate action output
+      #   run: echo "${{ steps.evaluate.outputs.scan-id }} ${{ steps.evaluate.outputs.report-url }}"
+
+      # - name: Run Fortify on Demand SAST & SCA Scan
+      #   uses: fortify/github-action@v2
+      #   with:
+      #     sast-scan: true
+      #     debricked-sca-scan: true
+      #   env:
+      #     FOD_URL: https://ams.fortify.com
+      #     FOD_TENANT: ${{secrets.FOD_TENANT}}
+      #     FOD_USER: ${{secrets.FOD_USER}}
+      #     FOD_PASSWORD: ${{secrets.FOD_PAT}}
+      #     FOD_CLIENT_ID: ${{secrets.FOD_CLIENT_ID}}
+      #     FOD_CLIENT_SECRET: ${{secrets.FOD_CLIENT_SECRET}}
+
+      - name: Build with Maven
+        run: |
+          cd ${{ env.project-path }}
+          mvn -B package --file pom.xml -DskipTests
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ vars.JAVA_MAVEN_EM_ENVIRONMENT }}
+
+    steps:
+      - name: (TEST) Download Build Artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: donet-artifact
+
+      - name: (TEST) Delete artifacts
+        run: |
+          artifacts=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts --jq '.artifacts[].id')
+          for artifact_id in $artifacts; do
+            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$artifact_id
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
