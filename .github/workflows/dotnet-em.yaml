@@ -1,17 +1,126 @@
 name: dotnet-em
 
+env:
+  project-path: "dotnet/EmployeeManage"
+  PUBLISHED_ROOT: "published"
+  dotnet-version: "8.0.x"
+
 on:
   push:
     # branches:
-    #   - main    
+    #   - main
     # paths:
     # - 'dotnet/EmployeeManage/**'
     tags:
       - "dontnet-em-v*.*.*"
+  workflow_dispatch:
 
 jobs:
-  call-build:
-    uses: my-actions-mc-1/workflow-1/.github/workflows/pipeline-dotnet.yaml@main
-    with:
-      project-path: 'dotnet/EmployeeManage'
-      dotnet-version: '8.0.x'
+  # call-build:
+  #   uses: my-actions-mc-1/workflow-1/.github/workflows/pipeline-dotnet.yaml@main
+  #   with:
+  #     project-path: 'dotnet/EmployeeManage'
+  #     dotnet-version: '8.0.x'
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.dotnet-version }}
+
+      # - name: Set up dependency caching for faster builds
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: ~/.nuget/packages
+      #     key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies & build with dotnet
+        run: |
+          cd ${{ env.project-path }}
+          dotnet restore
+          dotnet build --configuration Release --no-restore
+
+      # - name: Run shared composite action
+      #   uses: my-actions-mc-1/workflow-1/.github/actions/sonatype-fortify-scan@main
+      #   with:
+      #     scan-targets: '${{ env.project-path }}/**/bin/Release/**/*.dll ${{ env.project-path }}/**/bin/Release/**/*.nupkg'
+
+      # - name: Sonatype Evaluate
+      #   id: evaluate
+      #   uses: sonatype/actions/evaluate@v1
+      #   with:
+      #     iq-server-url: ${{ secrets.SONATYPE_SERVER_URL }}
+      #     username: ${{ secrets.SONATYPE_USERNAME }}
+      #     password: ${{ secrets.SONATYPE_PASSWORD }}
+      #     application-id: ${{ secrets.SONATYPE_APP_ID }}
+      #     scan-targets: '**/bin/Release/**/*.dll **/bin/Release/**/*.nupkg'
+
+      # - name: Log evaluate action output
+      #   run: echo "${{ steps.evaluate.outputs.scan-id }} ${{ steps.evaluate.outputs.report-url }}"
+
+      # - name: Run Fortify on Demand SAST & SCA Scan
+      #   uses: fortify/github-action@v2
+      #   with:
+      #     sast-scan: true
+      #     debricked-sca-scan: true
+      #   env:
+      #     FOD_URL: https://ams.fortify.com
+      #     FOD_TENANT: ${{secrets.FOD_TENANT}}
+      #     FOD_USER: ${{secrets.FOD_USER}}
+      #     FOD_PASSWORD: ${{secrets.FOD_PAT}}
+      #     FOD_CLIENT_ID: ${{secrets.FOD_CLIENT_ID}}
+      #     FOD_CLIENT_SECRET: ${{secrets.FOD_CLIENT_SECRET}}
+
+      - name: dotnet publish
+        run: |
+          cd ${{ env.project-path }}  
+          dotnet publish -c Release -o '${{env.project-path}}/${{env.PUBLISHED_ROOT}}'
+
+      - name: (TEST) Upload a Build Artifact
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: donet-artifact
+          path: "${{env.project-path}}/${{env.PUBLISHED_ROOT}}"
+
+  approval:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: (TEST) Request deployment approval
+        uses: trstringer/manual-approval@v1.11.0
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: marcuscwm-nus
+          minimum-approvals: 1
+          issue-title: "Deployment request for ${{github.ref_name}}"
+          issue-body: "Please approve or deny deployment."
+
+  deploy:
+    needs: approval
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: (TEST) Download Build Artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: donet-artifact
+
+      - name: (TEST) Delete artifacts
+        run: |
+          artifacts=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts --jq '.artifacts[].id')
+          for artifact_id in $artifacts; do
+            gh api --method DELETE repos/${{ github.repository }}/actions/artifacts/$artifact_id
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+
+      - run: echo "(TEST) Deploying after approval..."
