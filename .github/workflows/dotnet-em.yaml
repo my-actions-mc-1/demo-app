@@ -93,7 +93,7 @@ jobs:
         uses: actions/upload-artifact@v4.6.2
         with:
           name: donet-artifact
-          path: "${{env.PUBLISHED_ROOT}}"
+          path: "${{ env.project-path }}/${{env.PUBLISHED_ROOT}}"
 
   deploy:
     needs: build
