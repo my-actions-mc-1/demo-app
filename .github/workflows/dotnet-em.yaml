@@ -13,11 +13,6 @@ on:
     tags:
       - "dontnet-em-v*.*.*"
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment type (options: development)'
-        type: string
-        default: 'development'
 
 jobs:
   # call-build:
@@ -98,7 +93,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: ${{!inputs.environment && 'development' || inputs.environment}}
+      name: ${{ vars.DOTNET_EM_ENVIRONMENT }}
 
     steps:
       - name: (TEST) Download Build Artifact
