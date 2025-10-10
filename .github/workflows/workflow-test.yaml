@@ -30,4 +30,4 @@ jobs:
           echo "api_response=$response" >> $GITHUB_OUTPUT
 
       - name: Display pokemon info
-        run: echo ${{ steps.pokemon.outputs.api_response }} | jq -r '.abilities'
+        run: echo "${{ steps.pokemon.outputs.api_response }}" | jq -r '.abilities'
