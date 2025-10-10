@@ -18,7 +18,16 @@ jobs:
         uses: ./hello-world-javascript-action
         id: hello
         with:
-          who-to-greet: 'Obi-Wan Kenobi'
+          who-to-greet: "Obi-Wan Kenobi"
 
       - name: Get the output time
         run: echo "The time was ${{ steps.hello.outputs.time }}"
+
+      - name: Get Pokemon info
+        id: pokemon
+        run: |
+          response=$(curl -s https://pokeapi.co/api/v2/pokemon/pikachu)
+          echo "api_response=$response" >> $GITHUB_OUTPUT
+
+      - name: Display pokemon info
+        run: echo ${{ steps.pokemon.outputs.api_response }} | jq -r '.abilities'
