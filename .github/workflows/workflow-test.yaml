@@ -1,0 +1,24 @@
+name: workflow-test
+
+env:
+  project-path: ""
+
+on:
+  workflow_dispatch:
+
+jobs:
+  custom-action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Custom javascript action
+        uses: ./hello-world-javascript-action
+        id: hello
+        with:
+          who-to-greet: 'Obi-Wan Kenobi'
+
+      - name: Get the output time
+        run: echo "The time was ${{ steps.hello.outputs.time }}"
