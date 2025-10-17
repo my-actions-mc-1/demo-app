@@ -101,6 +101,10 @@ jobs:
         with:
           name: donet-artifact
 
+  cleanup:
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
       - name: (TEST) Delete artifacts
         run: |
           artifacts=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts --jq '.artifacts[].id')
@@ -109,3 +113,4 @@ jobs:
           done
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+          
