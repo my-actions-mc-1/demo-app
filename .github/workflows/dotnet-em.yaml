@@ -5,11 +5,10 @@ name: dotnet-em
 #   dotnet-version: "8.0.x"
 
 on:
-  # push:
-    # branches:
-    #   - main
-    # paths:
-    # - 'dotnet/EmployeeManage/**'
+  push:
+    branches: [main]
+    paths:
+    - 'dotnet/EmployeeManage/**'
     # tags:
     #   - "dontnet-em-v*.*.*"
   
