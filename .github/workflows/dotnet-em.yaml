@@ -12,8 +12,8 @@ on:
     # tags:
     #   - "dontnet-em-v*.*.*"
   
-  pull_request:
-    branches: [main]
+  # pull_request:
+  #   branches: [main]
 
   workflow_dispatch:
 
