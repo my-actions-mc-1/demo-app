@@ -1,0 +1,36 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: employee-manage:latest
+    container_name: employee-app
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+      - ASPNETCORE_HTTP_PORTS=80
+      # Add your connection string here or use the .env file
+      - ConnectionStrings__db_conn=Server=db;Database=EmployeeManage;User ID=SA;Password=${DB_PASSWORD};TrustServerCertificate=True
+    volumes:
+      # Mount appsettings for development to enable hot-reload of configuration
+      - ./appsettings.Development.json:/app/appsettings.Development.json:ro
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: employee-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
+    ports:
+      - "1433:1433"
+    # volumes:
+    #   - employee-db-data:/var/opt/mssql
+
+# volumes:
+#   employee-db-data:
+#     name: employee-db-data
