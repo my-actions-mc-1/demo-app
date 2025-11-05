@@ -1,0 +1,30 @@
+# .NET build output
+bin/
+obj/
+
+# Development files
+*.user
+*.suo
+*.vspscc
+*.vssscc
+.vs/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+.dockerignore
+.env
+docker-compose*.yml
+
+# Environment files that should be configured at runtime
+appsettings.Development.json
+
+# Misc
+README.md
+*.md
+LICENSE
+*.log
