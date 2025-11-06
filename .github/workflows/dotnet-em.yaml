@@ -10,8 +10,10 @@ jobs:
     name: call-dotnet-workflow
     uses: my-actions-mc-1/workflow-1/.github/workflows/main-pipeline-dotnet.yaml@main
     with:
-      project-path: 'dotnet/EmployeeManage'
-      dotnet-version: '8.0.x'
-      project-env: ${{ vars.DOTNET_EM_ENVIRONMENT }}
+      PROJECT_PATH: 'dotnet/EmployeeManage'
+      DOTNET_VERSION: '8.0.x'
+      PROJECT_ENV: ${{ vars.DOTNET_EM_ENVIRONMENT }}
+      IMAGE_NAME: 'sample-dotnet-image'
+      IMAGE_TAGS: 'sdi'
     secrets:
       MY_TOKEN: ${{ secrets.MY_TOKEN }}
