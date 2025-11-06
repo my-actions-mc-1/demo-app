@@ -10,7 +10,6 @@ RUN dotnet restore
 COPY . .
 
 # Build the application
-RUN dotnet build "EmployeeManage.csproj" -c Release -o /app/build --no-restore
 RUN dotnet publish "EmployeeManage.csproj" -c Release -o /app/publish /p:UseAppHost=false --no-restore
 
 # Runtime stage
